@@ -79,6 +79,7 @@ import '../styles/global.css';
     import { CHEBG_GAMES, DEFAULT_PROFILE, type Game, type GamerProfile } from '../data/games';
     import { playClickSound, playSuccessChime, playDeleteSound, playCheatFanfare } from '../utils/audio';
     import { extractYoutubeId, calculateTotalHours } from '../utils/helpers';
+    import { fetchGamesFromAPI, saveGameToAPI, updateGameOnAPI, deleteGameFromAPI, fetchProfileFromAPI, saveProfileToAPI } from '../utils/api';
 
     const STORAGE_KEY = 'chebg_favorite_games_v1';
     const PROFILE_KEY = 'chebg_profile_v1';
@@ -244,7 +245,7 @@ import '../styles/global.css';
                 </div>
 
                 <h3 class="card-game-title font-display">${game.title}</h3>
-                <p class="card-tagline">${game.tagline || 'Favorito oficial de Chebg.'}</p>
+                ${game.tagline ? `<p class="card-tagline">${game.tagline}</p>` : ''}
 
                 <div class="card-footer-row">
                   <span class="dev-name">${game.developer}</span>
@@ -308,7 +309,7 @@ import '../styles/global.css';
 
       // Form submit (Handles both ADD and EDIT)
       if (addForm) {
-        addForm.addEventListener('submit', (e) => {
+        addForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           const existingId = (document.getElementById('fg-game-id') as HTMLInputElement).value.trim();
           const title = (document.getElementById('fg-title') as HTMLInputElement).value.trim();
@@ -322,7 +323,7 @@ import '../styles/global.css';
           const coverImage = (document.getElementById('fg-cover') as HTMLInputElement).value.trim() || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1000';
           const rawYoutube = (document.getElementById('fg-youtube') as HTMLInputElement).value.trim();
           const youtubeId = extractYoutubeId(rawYoutube) || 'eaW0tYxi5rg';
-          const review = (document.getElementById('fg-review') as HTMLTextAreaElement).value.trim() || 'Un juego increíble en la colección de Chebg.';
+          const review = (document.getElementById('fg-review') as HTMLTextAreaElement).value.trim();
 
           let games = getStoredGames();
 
@@ -330,10 +331,10 @@ import '../styles/global.css';
             // Edit mode
             const idx = games.findIndex(g => g.id === existingId);
             if (idx !== -1) {
-              games[idx] = {
+              const updatedGame: Game = {
                 ...games[idx],
                 title,
-                tagline: tagline || games[idx].tagline,
+                tagline: tagline, // Allow empty string if user cleared it!
                 developer,
                 year,
                 genre,
@@ -342,17 +343,19 @@ import '../styles/global.css';
                 hoursPlayed,
                 coverImage,
                 bannerImage: coverImage,
-                verdict: review.slice(0, 80) + '...',
-                chebgReview: review,
+                verdict: review ? (review.slice(0, 80) + (review.length > 80 ? '...' : '')) : '',
+                chebgReview: review, // Allow empty string if user cleared it!
                 youtubeId
               };
+              games[idx] = updatedGame;
+              updateGameOnAPI(updatedGame);
             }
           } else {
             // Add new game mode
             const newGame: Game = {
               id: 'game-' + Date.now(),
               title,
-              tagline: tagline || 'Selección especial de Chebg',
+              tagline: tagline,
               developer,
               year,
               genre,
@@ -363,13 +366,14 @@ import '../styles/global.css';
               hoursPlayed,
               coverImage,
               bannerImage: coverImage,
-              verdict: review.slice(0, 80) + '...',
+              verdict: review ? (review.slice(0, 80) + (review.length > 80 ? '...' : '')) : '',
               chebgReview: review,
               highlights: ['Experiencia inolvidable', 'Recomendado por Chebg'],
               favoriteFeature: 'Historia y Jugabilidad',
               youtubeId
             };
             games.unshift(newGame);
+            saveGameToAPI(newGame);
           }
 
           saveStoredGames(games);
@@ -409,6 +413,7 @@ import '../styles/global.css';
               const current = getStoredGames();
               const filtered = current.filter(g => g.id !== deleteId);
               saveStoredGames(filtered);
+              deleteGameFromAPI(deleteId);
               renderGames();
               if ((window as any).showToast) {
                 (window as any).showToast('Juego eliminado de la colección.', 'delete', 'ITEM REMOVIDO');
@@ -475,6 +480,8 @@ import '../styles/global.css';
           };
 
           saveStoredProfile(updatedProf);
+          saveProfileToAPI(updatedProf);
+
           if (profileModal) profileModal.classList.add('hidden');
           document.body.style.overflow = '';
           updateProfileHUD();
@@ -545,6 +552,7 @@ import '../styles/global.css';
           const prof = getStoredProfile();
           prof.specialAchievement = unlockedAchievement;
           saveStoredProfile(prof);
+          saveProfileToAPI(prof);
           updateProfileHUD();
           triggerConfetti();
           playCheatFanfare();
@@ -555,7 +563,24 @@ import '../styles/global.css';
         }
       });
 
+      // Async sync with Render API on startup
+      const syncWithAPI = async () => {
+        try {
+          const apiGames = await fetchGamesFromAPI(getStoredGames());
+          if (apiGames && apiGames.length > 0) {
+            saveStoredGames(apiGames);
+            renderGames();
+          }
+          const apiProfile = await fetchProfileFromAPI(getStoredProfile());
+          if (apiProfile) {
+            saveStoredProfile(apiProfile);
+            updateProfileHUD();
+          }
+        } catch (e) {}
+      };
+
       renderGames();
+      syncWithAPI();
     });
   </script>
 

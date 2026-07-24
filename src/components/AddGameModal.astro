@@ -233,16 +233,16 @@
         // Edit Mode
         if (idInput) idInput.value = game.id;
         if (titleInput) titleInput.value = game.title || '';
-        if (taglineInput) taglineInput.value = game.tagline || '';
+        if (taglineInput) taglineInput.value = game.tagline !== undefined ? game.tagline : '';
         if (devInput) devInput.value = game.developer || '';
         if (yearInput) yearInput.value = (game.year || 2025).toString();
         if (genreSelect) genreSelect.value = game.genre || 'Open World';
         if (scoreSelect) scoreSelect.value = game.score || '10 / 10';
-        if (badgeSelect) badgeSelect.value = game.badge || 'GOAT';
+        if (badgeSelect) badgeSelect.value = game.badge !== undefined ? game.badge : 'GOAT';
         if (hoursInput) hoursInput.value = game.hoursPlayed || '';
         if (coverInput) coverInput.value = game.coverImage || '';
         if (youtubeInput) youtubeInput.value = game.youtubeId ? `https://www.youtube.com/watch?v=${game.youtubeId}` : '';
-        if (reviewInput) reviewInput.value = game.chebgReview || game.verdict || '';
+        if (reviewInput) reviewInput.value = game.chebgReview !== undefined ? game.chebgReview : (game.verdict || '');
 
         if (preTitleEl) preTitleEl.textContent = 'MODO EDICIÓN';
         if (headingEl) headingEl.textContent = 'EDITAR JUEGO';
