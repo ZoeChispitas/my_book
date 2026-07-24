@@ -566,13 +566,13 @@ import '../styles/global.css';
       // Async sync with Render API on startup
       const syncWithAPI = async () => {
         try {
-          const apiGames = await fetchGamesFromAPI(getStoredGames());
-          if (apiGames && apiGames.length > 0) {
+          const apiGames = await fetchGamesFromAPI();
+          if (apiGames !== null) {
             saveStoredGames(apiGames);
             renderGames();
           }
-          const apiProfile = await fetchProfileFromAPI(getStoredProfile());
-          if (apiProfile) {
+          const apiProfile = await fetchProfileFromAPI();
+          if (apiProfile !== null) {
             saveStoredProfile(apiProfile);
             updateProfileHUD();
           }

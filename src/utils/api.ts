@@ -3,20 +3,20 @@ import type { Game, GamerProfile } from '../data/games';
 // Render Web Service Live API URL
 const API_BASE = import.meta.env.PUBLIC_API_URL || 'https://preferences-vault-api.onrender.com/api';
 
-// Helper to fetch games from Render PostgreSQL DB (with localStorage fallback)
-export const fetchGamesFromAPI = async (localFallback: Game[]): Promise<Game[]> => {
+// Helper to fetch games from Render PostgreSQL DB (returns null if API server is offline)
+export const fetchGamesFromAPI = async (): Promise<Game[] | null> => {
   try {
     const res = await fetch(`${API_BASE}/games`, { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         return data;
       }
     }
   } catch (e) {
     console.warn('API unavailable, using local storage fallback:', e);
   }
-  return localFallback;
+  return null;
 };
 
 // Helper to save a new game to API
@@ -63,7 +63,7 @@ export const deleteGameFromAPI = async (id: string): Promise<boolean> => {
 };
 
 // Helper to fetch gamer profile from API
-export const fetchProfileFromAPI = async (localFallback: GamerProfile): Promise<GamerProfile> => {
+export const fetchProfileFromAPI = async (): Promise<GamerProfile | null> => {
   try {
     const res = await fetch(`${API_BASE}/profile`, { cache: 'no-store' });
     if (res.ok) {
@@ -73,7 +73,7 @@ export const fetchProfileFromAPI = async (localFallback: GamerProfile): Promise<
   } catch (e) {
     console.warn('Error fetching profile from API:', e);
   }
-  return localFallback;
+  return null;
 };
 
 // Helper to save gamer profile to API

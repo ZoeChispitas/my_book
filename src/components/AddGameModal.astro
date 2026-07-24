@@ -242,7 +242,7 @@
         if (hoursInput) hoursInput.value = game.hoursPlayed || '';
         if (coverInput) coverInput.value = game.coverImage || '';
         if (youtubeInput) youtubeInput.value = game.youtubeId ? `https://www.youtube.com/watch?v=${game.youtubeId}` : '';
-        if (reviewInput) reviewInput.value = game.chebgReview !== undefined ? game.chebgReview : (game.verdict || '');
+        if (reviewInput) reviewInput.value = game.chebgReview || '';
 
         if (preTitleEl) preTitleEl.textContent = 'MODO EDICIÓN';
         if (headingEl) headingEl.textContent = 'EDITAR JUEGO';

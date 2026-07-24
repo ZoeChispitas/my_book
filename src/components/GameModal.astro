@@ -69,7 +69,7 @@
 
             <div class="modal-section">
               <h4 class="modal-sec-title font-display">Reseña de Chebg</h4>
-              <p class="modal-review-text">${game.chebgReview || game.verdict || 'Un juego verdaderamente especial en la colección.'}</p>
+              <p class="modal-review-text">${game.chebgReview ? game.chebgReview : '<em>(Sin reseña escrita aún)</em>'}</p>
             </div>
 
             <div class="modal-section">
