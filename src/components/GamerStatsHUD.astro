@@ -364,4 +364,32 @@ import { Clock, Trophy, Gamepad2, Flame, MapPin, Activity, Edit3 } from 'lucide-
       grid-template-columns: 1fr;
     }
   }
+
+  @media (max-width: 580px) {
+    .metrics-grid {
+      grid-template-columns: 1fr;
+    }
+    .featured-metric {
+      grid-column: span 1;
+    }
+    .profile-card {
+      padding: 1.25rem;
+    }
+    .metric-box {
+      padding: 1.15rem;
+    }
+    .grand-value {
+      font-size: 1.7rem;
+    }
+    .profile-header {
+      flex-direction: column;
+      text-align: center;
+    }
+    .name-badge-row {
+      justify-content: center;
+    }
+    .profile-location {
+      justify-content: center;
+    }
+  }
 </style>

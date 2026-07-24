@@ -171,4 +171,24 @@ import { Plus, Zap, Flame, Sparkles, Terminal } from 'lucide-astro';
   .zap-icon {
     color: var(--accent-amber);
   }
+
+  @media (max-width: 640px) {
+    .hero-banner {
+      padding: 3rem 0 2rem 0;
+    }
+    .hero-title {
+      font-size: 2.3rem;
+    }
+    .hero-description {
+      font-size: 1rem;
+    }
+    .hero-buttons {
+      flex-direction: column;
+      width: 100%;
+    }
+    .hero-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 </style>
