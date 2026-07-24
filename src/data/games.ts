@@ -61,6 +61,69 @@ export const CHEBG_GAMES: Game[] = [
   }
 ];
 
+export const SAMPLE_GOAT_PRESETS: Game[] = [
+  {
+    id: 'elden-ring',
+    title: 'Elden Ring',
+    tagline: 'Una obra maestra de exploración y desafíos brutales en las Tierras Intermedias.',
+    developer: 'FromSoftware',
+    year: 2022,
+    genre: 'RPG',
+    platforms: ['PC', 'PS5', 'Xbox'],
+    wantedStars: 5,
+    score: '10 / 10',
+    hoursPlayed: '250 hrs',
+    coverImage: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1000&auto=format&fit=crop',
+    bannerImage: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1200&auto=format&fit=crop',
+    verdict: 'El mejor diseño de mundo abierto en la historia de los RPGs.',
+    chebgReview: 'Un mundo gigante lleno de secretos donde la libertad es total y cada jefe derrotado se siente como una victoria épica.',
+    highlights: ['Mundo abierto orgánico', 'Combate refinado', 'Diseño de jefes legendario'],
+    favoriteFeature: 'Explorar las Tierras Intermedias sin marcadores molestos',
+    youtubeId: 'E3Huy2cdih0',
+    badge: 'GOAT'
+  },
+  {
+    id: 'cyberpunk-2077',
+    title: 'Cyberpunk 2077',
+    tagline: 'Una ciudad distópica donde la tecnología y el peligro se cruzan en cada esquina.',
+    developer: 'CD Projekt RED',
+    year: 2023,
+    genre: 'Open World',
+    platforms: ['PC', 'PS5', 'Xbox'],
+    wantedStars: 5,
+    score: '10 / 10',
+    hoursPlayed: '180 hrs',
+    coverImage: 'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=1000&auto=format&fit=crop',
+    bannerImage: 'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=1200&auto=format&fit=crop',
+    verdict: 'Night City es la ciudad más impresionante visualmente.',
+    chebgReview: 'La atmósfera nocturna con luces neón y la banda sonora hacen que recorrer Night City en moto sea una experiencia única.',
+    highlights: ['Gráficos neón deslumbrantes', 'Misiones secundarias memorables', 'Banda sonora increíble'],
+    favoriteFeature: 'Conducir de noche por Night City',
+    youtubeId: 'vjF9GgrY9c0',
+    badge: 'MUST PLAY'
+  },
+  {
+    id: 'god-of-war-rag',
+    title: 'God of War Ragnarök',
+    tagline: 'Kratos y Atreus enfrentan el destino de los nueve reinos mitológicos.',
+    developer: 'Santa Monica Studio',
+    year: 2022,
+    genre: 'Acción',
+    platforms: ['PC', 'PS5'],
+    wantedStars: 5,
+    score: '10 / 10',
+    hoursPlayed: '95 hrs',
+    coverImage: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1000&auto=format&fit=crop',
+    bannerImage: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop',
+    verdict: 'Combate visceral con una narrativa emocional de padre e hijo.',
+    chebgReview: 'La evolución de la relación entre Kratos y Atreus combinada con el hacha Leviatán hace de cada batalla un espectáculo de acción.',
+    highlights: ['Combate visceral y contundente', 'Graficazos en PS5/PC', 'Mitología nórdica épica'],
+    favoriteFeature: 'Lanzar y llamar de vuelta el hacha Leviatán',
+    youtubeId: 'hfJ4Km46A-0',
+    badge: 'TOP 1'
+  }
+];
+
 export interface GamerProfile {
   name: string;
   role: string;

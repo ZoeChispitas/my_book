@@ -76,7 +76,7 @@ import '../styles/global.css';
 
   <script>
     import confetti from 'canvas-confetti';
-    import { CHEBG_GAMES, DEFAULT_PROFILE, type Game, type GamerProfile } from '../data/games';
+    import { CHEBG_GAMES, SAMPLE_GOAT_PRESETS, DEFAULT_PROFILE, type Game, type GamerProfile } from '../data/games';
     import { playClickSound, playSuccessChime, playDeleteSound, playCheatFanfare } from '../utils/audio';
     import { extractYoutubeId, calculateTotalHours } from '../utils/helpers';
     import { fetchGamesFromAPI, saveGameToAPI, updateGameOnAPI, deleteGameFromAPI, fetchProfileFromAPI, saveProfileToAPI } from '../utils/api';
@@ -493,15 +493,39 @@ import '../styles/global.css';
         });
       }
 
-      // Load Presets
+      // Load Presets (Smart dynamic sample loader that doesn't overwrite existing games)
       loadPresetsBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          saveStoredGames(CHEBG_GAMES);
+        btn.addEventListener('click', async () => {
+          const currentGames = getStoredGames();
+          const samplePool = [...SAMPLE_GOAT_PRESETS, ...CHEBG_GAMES];
+
+          // Find a sample game that is not currently in the user's collection
+          let sample = samplePool.find(s => !currentGames.some(c => c.title.toLowerCase() === s.title.toLowerCase()));
+
+          if (!sample) {
+            // If user has all, clone the first one with a new ID
+            const baseSample = samplePool[Math.floor(Math.random() * samplePool.length)];
+            sample = {
+              ...baseSample,
+              id: 'game-' + Date.now()
+            };
+          } else {
+            sample = {
+              ...sample,
+              id: 'game-' + Date.now()
+            };
+          }
+
+          currentGames.unshift(sample);
+          saveStoredGames(currentGames);
+          await saveGameToAPI(sample);
+
           renderGames();
           triggerConfetti();
           playSuccessChime();
+
           if ((window as any).showToast) {
-            (window as any).showToast('Ejemplo base cargado.', 'success', 'JUEGO BASE');
+            (window as any).showToast(`Ejemplo cargado: "${sample.title}"`, 'success', 'JUEGO DE EJEMPLO');
           }
         });
       });
