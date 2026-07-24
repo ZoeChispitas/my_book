@@ -1,0 +1,174 @@
+---
+import { Plus, Zap, Flame, Sparkles, Terminal } from 'lucide-astro';
+---
+
+<section class="hero-section">
+  <!-- Glowing Vice Ambient Background Orbs -->
+  <div class="glow-orb orb-1 animate-glow"></div>
+  <div class="glow-orb orb-2 animate-glow"></div>
+
+  <div class="container hero-container">
+    <div class="hero-badge">
+      <Sparkles size={14} class="badge-icon" />
+      <span>CHEBG GAMING VAULT</span>
+    </div>
+
+    <h1 class="hero-title font-display">
+      LOS JUEGOS FAVORITOS DE <span class="gradient-text">CHEBG</span>
+    </h1>
+
+    <p class="hero-description">
+      Una colección seleccionada y personalizada con las mejores historias, mundos abiertos y aventuras épicas. Agrega los tuyos o carga la lista GOAT oficial.
+    </p>
+
+    <!-- Cheat Code Hint Bar -->
+    <div class="cheat-hint-pill">
+      <Terminal size={14} class="cheat-icon" />
+      <span>PRO TIP: Escribe <code class="cheat-code">CHEBG</code> en tu teclado para desbloquear el logro <strong>DINOBOBO</strong> 🦖</span>
+    </div>
+
+    <div class="hero-buttons">
+      <button class="btn-primary hero-btn" id="hero-add-trigger">
+        <Plus size={18} />
+        <span>Agregar Juego</span>
+      </button>
+
+      <button class="btn-secondary hero-btn" id="hero-presets-trigger">
+        <Zap size={18} class="zap-icon" />
+        <span>Cargar Ejemplos GOAT</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-section {
+    position: relative;
+    padding: 6.5rem 0 4.5rem 0;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .glow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(110px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .orb-1 {
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px;
+    height: 320px;
+    background: rgba(255, 0, 127, 0.16);
+    animation: floatGlow 8s ease-in-out infinite alternate;
+  }
+
+  .orb-2 {
+    top: 60px;
+    left: 30%;
+    width: 400px;
+    height: 280px;
+    background: rgba(0, 240, 255, 0.12);
+    animation: floatGlow 10s ease-in-out infinite alternate-reverse;
+  }
+
+  @keyframes floatGlow {
+    0% { transform: translate(-50%, 0) scale(1); }
+    100% { transform: translate(-45%, 20px) scale(1.15); }
+  }
+
+  .hero-container {
+    position: relative;
+    z-index: 2;
+    max-width: 850px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 18px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: 1.5px;
+    margin-bottom: 1.75rem;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .badge-icon {
+    color: var(--accent-pink);
+  }
+
+  .hero-title {
+    font-size: clamp(3rem, 6vw, 4.8rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    margin-bottom: 1.25rem;
+  }
+
+  .hero-description {
+    font-size: 1.18rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+    max-width: 640px;
+    margin-bottom: 1.75rem;
+  }
+
+  .cheat-hint-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 0, 127, 0.08);
+    border: 1px dashed rgba(255, 0, 127, 0.3);
+    font-size: 0.8rem;
+    color: var(--accent-cyan);
+    margin-bottom: 2.25rem;
+  }
+
+  .cheat-icon {
+    color: var(--accent-pink);
+  }
+
+  .cheat-code {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--accent-pink);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-family: var(--font-display);
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .hero-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 26px;
+    font-size: 1rem;
+  }
+
+  .zap-icon {
+    color: var(--accent-amber);
+  }
+</style>

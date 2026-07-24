@@ -1,0 +1,490 @@
+---
+---
+
+<div id="add-game-modal" class="modal-backdrop hidden">
+  <div class="glass-card modal-dialog-box">
+    <div class="modal-header-bar">
+      <div class="modal-title-group">
+        <span class="modal-pre-title" id="add-modal-pre-title">CHEBG VAULT</span>
+        <h2 class="modal-title font-display" id="add-modal-heading">AGREGAR JUEGO FAVORITO</h2>
+      </div>
+      <button class="modal-close-icon" id="add-modal-close">✕</button>
+    </div>
+
+    <form id="add-game-form" class="modal-form-content">
+      <!-- Hidden ID for Edit Mode -->
+      <input type="hidden" id="fg-game-id" value="" />
+
+      <div class="form-grid">
+        <!-- Title -->
+        <div class="input-field-group col-span-2">
+          <label for="fg-title">Nombre del juego *</label>
+          <input type="text" id="fg-title" required placeholder="Ej: Red Dead Redemption 2" class="clean-input" />
+        </div>
+
+        <!-- Tagline -->
+        <div class="input-field-group col-span-2">
+          <label for="fg-tagline">Frase corta / Subtítulo</label>
+          <input type="text" id="fg-tagline" placeholder="Ej: La experiencia de mundo abierto definitiva" class="clean-input" />
+        </div>
+
+        <!-- Developer -->
+        <div class="input-field-group">
+          <label for="fg-developer">Estudio / Desarrollador</label>
+          <input type="text" id="fg-developer" placeholder="Ej: Rockstar Games" class="clean-input" />
+        </div>
+
+        <!-- Year -->
+        <div class="input-field-group">
+          <label for="fg-year">Año de Lanzamiento</label>
+          <input type="number" id="fg-year" value="2025" placeholder="2025" class="clean-input" />
+        </div>
+
+        <!-- Genre (Expanded) -->
+        <div class="input-field-group">
+          <label for="fg-genre">Género *</label>
+          <select id="fg-genre" class="clean-select">
+            <option value="Open World">Open World</option>
+            <option value="RPG">RPG</option>
+            <option value="Acción">Acción</option>
+            <option value="Sigilo">Sigilo</option>
+            <option value="Indie">Indie</option>
+            <option value="Survival">Survival</option>
+            <option value="Carreras">Carreras</option>
+            <option value="Terror">Terror</option>
+            <option value="Estrategia">Estrategia</option>
+            <option value="Shooter">Shooter</option>
+            <option value="Aventura">Aventura</option>
+            <option value="Plataformas">Plataformas</option>
+          </select>
+        </div>
+
+        <!-- Score (1 to 10 Restricted) -->
+        <div class="input-field-group">
+          <label for="fg-score">Puntuación Chebg (1 a 10) *</label>
+          <select id="fg-score" class="clean-select">
+            <option value="10 / 10">10 / 10 (Obra Maestra)</option>
+            <option value="9 / 10">9 / 10 (Excelente)</option>
+            <option value="8 / 10">8 / 10 (Muy Bueno)</option>
+            <option value="7 / 10">7 / 10 (Bueno)</option>
+            <option value="6 / 10">6 / 10 (Aceptable)</option>
+            <option value="5 / 10">5 / 10 (Regular)</option>
+            <option value="4 / 10">4 / 10 (Mediocre)</option>
+            <option value="3 / 10">3 / 10 (Malo)</option>
+            <option value="2 / 10">2 / 10 (Muy Malo)</option>
+            <option value="1 / 10">1 / 10 (Infumable)</option>
+          </select>
+        </div>
+
+        <!-- Badge Preset Selection -->
+        <div class="input-field-group">
+          <label for="fg-badge">Insignia / Recomendación</label>
+          <select id="fg-badge" class="clean-select">
+            <option value="GOAT">GOAT</option>
+            <option value="MUST PLAY">MUST PLAY</option>
+            <option value="TOP 1">TOP 1</option>
+            <option value="100% PLATINUM">100% PLATINUM</option>
+            <option value="RECOMMENDED">RECOMMENDED</option>
+            <option value="">(Sin Insignia)</option>
+          </select>
+        </div>
+
+        <!-- Hours -->
+        <div class="input-field-group">
+          <label for="fg-hours">Horas Jugadas en este juego</label>
+          <input type="text" id="fg-hours" placeholder="Ej: 120 hrs" class="clean-input" />
+        </div>
+
+        <!-- Cover Image (URL or File Upload) -->
+        <div class="input-field-group col-span-2">
+          <label for="fg-cover">Imagen de Portada (Pega enlace URL o Sube un archivo)</label>
+          <div class="image-input-flex">
+            <input type="url" id="fg-cover" placeholder="https://images.unsplash.com/..." class="clean-input flex-1" />
+            <label class="file-upload-btn" for="fg-cover-file">
+              <span>🖼️ Subir Foto</span>
+              <input type="file" id="fg-cover-file" accept="image/*" class="file-hidden-input" />
+            </label>
+          </div>
+
+          <div class="presets-row">
+            <span class="presets-label">Presets:</span>
+            <button type="button" class="preset-pill" data-url="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1000">ACTION</button>
+            <button type="button" class="preset-pill" data-url="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1000">RDR2</button>
+            <button type="button" class="preset-pill" data-url="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1000">ELDEN</button>
+            <button type="button" class="preset-pill" data-url="https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=1000">CYBER</button>
+          </div>
+
+          <!-- Image Preview -->
+          <div id="image-preview-container" class="image-preview-box hidden">
+            <img id="image-preview-element" src="" alt="Vista previa" />
+            <span class="preview-tag">VISTA PREVIA DE PORTADA</span>
+          </div>
+        </div>
+
+        <!-- Youtube Trailer URL or ID -->
+        <div class="input-field-group col-span-2">
+          <label for="fg-youtube">Tráiler de YouTube (Pega la URL completa o ID)</label>
+          <input type="text" id="fg-youtube" placeholder="Ej: https://www.youtube.com/watch?v=eaW0tYxi5rg" class="clean-input" />
+        </div>
+
+        <!-- Star Rating -->
+        <input type="hidden" id="fg-stars" value="5" />
+
+        <!-- Review -->
+        <div class="input-field-group col-span-2">
+          <label for="fg-review">Reseña o comentario de Chebg</label>
+          <textarea id="fg-review" rows="3" placeholder="Escribe lo que hace especial a este juego..." class="clean-textarea"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-form-actions">
+        <button type="submit" class="btn-primary submit-btn" id="add-submit-btn">
+          💾 Guardar en la Lista
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  import { readFileAsDataURL } from '../utils/helpers';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('add-game-modal');
+    const closeBtn = document.getElementById('add-modal-close');
+    const presetBtns = document.querySelectorAll('.preset-pill');
+    const coverInput = document.getElementById('fg-cover') as HTMLInputElement;
+    const fileInput = document.getElementById('fg-cover-file') as HTMLInputElement;
+    const previewContainer = document.getElementById('image-preview-container');
+    const previewEl = document.getElementById('image-preview-element') as HTMLImageElement;
+
+    const updatePreview = (src: string) => {
+      if (!src || !previewContainer || !previewEl) {
+        previewContainer?.classList.add('hidden');
+        return;
+      }
+      previewEl.src = src;
+      previewContainer.classList.remove('hidden');
+    };
+
+    coverInput?.addEventListener('input', () => {
+      updatePreview(coverInput.value.trim());
+    });
+
+    fileInput?.addEventListener('change', async () => {
+      if (fileInput.files && fileInput.files[0]) {
+        try {
+          const dataUrl = await readFileAsDataURL(fileInput.files[0]);
+          coverInput.value = dataUrl;
+          updatePreview(dataUrl);
+        } catch (e) {
+          console.error('Error reading file:', e);
+        }
+      }
+    });
+
+    presetBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const url = btn.getAttribute('data-url');
+        if (url && coverInput) {
+          coverInput.value = url;
+          updatePreview(url);
+        }
+      });
+    });
+
+    const closeModal = () => {
+      if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    };
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+    }
+
+    // Expose openEditModal globally
+    (window as any).openEditGameModal = (game: any) => {
+      if (!modal) return;
+
+      const idInput = document.getElementById('fg-game-id') as HTMLInputElement;
+      const titleInput = document.getElementById('fg-title') as HTMLInputElement;
+      const taglineInput = document.getElementById('fg-tagline') as HTMLInputElement;
+      const devInput = document.getElementById('fg-developer') as HTMLInputElement;
+      const yearInput = document.getElementById('fg-year') as HTMLInputElement;
+      const genreSelect = document.getElementById('fg-genre') as HTMLSelectElement;
+      const scoreSelect = document.getElementById('fg-score') as HTMLSelectElement;
+      const badgeSelect = document.getElementById('fg-badge') as HTMLSelectElement;
+      const hoursInput = document.getElementById('fg-hours') as HTMLInputElement;
+      const coverInput = document.getElementById('fg-cover') as HTMLInputElement;
+      const youtubeInput = document.getElementById('fg-youtube') as HTMLInputElement;
+      const reviewInput = document.getElementById('fg-review') as HTMLTextAreaElement;
+
+      const preTitleEl = document.getElementById('add-modal-pre-title');
+      const headingEl = document.getElementById('add-modal-heading');
+      const submitBtn = document.getElementById('add-submit-btn');
+
+      if (game) {
+        // Edit Mode
+        if (idInput) idInput.value = game.id;
+        if (titleInput) titleInput.value = game.title || '';
+        if (taglineInput) taglineInput.value = game.tagline || '';
+        if (devInput) devInput.value = game.developer || '';
+        if (yearInput) yearInput.value = (game.year || 2025).toString();
+        if (genreSelect) genreSelect.value = game.genre || 'Open World';
+        if (scoreSelect) scoreSelect.value = game.score || '10 / 10';
+        if (badgeSelect) badgeSelect.value = game.badge || 'GOAT';
+        if (hoursInput) hoursInput.value = game.hoursPlayed || '';
+        if (coverInput) coverInput.value = game.coverImage || '';
+        if (youtubeInput) youtubeInput.value = game.youtubeId ? `https://www.youtube.com/watch?v=${game.youtubeId}` : '';
+        if (reviewInput) reviewInput.value = game.chebgReview || game.verdict || '';
+
+        if (preTitleEl) preTitleEl.textContent = 'MODO EDICIÓN';
+        if (headingEl) headingEl.textContent = 'EDITAR JUEGO';
+        if (submitBtn) submitBtn.textContent = '💾 Guardar Cambios';
+
+        updatePreview(game.coverImage || '');
+      } else {
+        // Add Mode
+        const form = document.getElementById('add-game-form') as HTMLFormElement;
+        if (form) form.reset();
+        if (idInput) idInput.value = '';
+        if (preTitleEl) preTitleEl.textContent = 'CHEBG VAULT';
+        if (headingEl) headingEl.textContent = 'AGREGAR JUEGO FAVORITO';
+        if (submitBtn) submitBtn.textContent = '💾 Guardar en la Lista';
+        updatePreview('');
+      }
+
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    };
+  });
+</script>
+
+<style>
+  .modal-dialog-box {
+    width: 100%;
+    max-width: 720px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 0, 127, 0.15);
+    padding: 0;
+    margin: auto;
+    animation: modalScale 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes modalScale {
+    0% { transform: scale(0.92); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .modal-header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .modal-pre-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    letter-spacing: 1.5px;
+    display: block;
+  }
+
+  .modal-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+  }
+
+  .modal-close-icon {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+  }
+
+  .modal-close-icon:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+  }
+
+  .modal-form-content {
+    padding: 2rem;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .col-span-2 {
+    grid-column: span 2;
+  }
+
+  .input-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .input-field-group label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .image-input-flex {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .flex-1 {
+    flex: 1;
+  }
+
+  .file-upload-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+
+  .file-upload-btn:hover {
+    background: rgba(255, 0, 127, 0.15);
+    border-color: var(--accent-pink);
+    color: #fff;
+  }
+
+  .file-hidden-input {
+    display: none;
+  }
+
+  .image-preview-box {
+    margin-top: 10px;
+    position: relative;
+    height: 140px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+  }
+
+  .image-preview-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .preview-tag {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    background: rgba(7, 8, 11, 0.85);
+    color: var(--accent-cyan);
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+  }
+
+  .clean-input, .clean-select, .clean-textarea {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-main);
+    padding: 10px 14px;
+    font-family: var(--font-sans);
+    font-size: 0.92rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .clean-select {
+    cursor: pointer;
+    background-color: #0f1219;
+  }
+
+  .clean-select option {
+    background-color: #0f1219 !important;
+    color: #f8fafc !important;
+    padding: 10px;
+  }
+
+  .clean-input:focus, .clean-select:focus, .clean-textarea:focus {
+    border-color: var(--accent-pink);
+    box-shadow: 0 0 12px rgba(255, 0, 127, 0.2);
+  }
+
+  .presets-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .presets-label {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+
+  .preset-pill {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+  }
+
+  .preset-pill:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+  }
+
+  .modal-form-actions {
+    margin-top: 1.75rem;
+  }
+
+  .submit-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 0;
+  }
+
+  @media (max-width: 640px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+    .col-span-2 {
+      grid-column: span 1;
+    }
+    .image-input-flex {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+</style>

@@ -1,0 +1,637 @@
+---
+import Header from '../components/Header.astro';
+import HeroBanner from '../components/HeroBanner.astro';
+import GamerStatsHUD from '../components/GamerStatsHUD.astro';
+import GameFilter from '../components/GameFilter.astro';
+import GameModal from '../components/GameModal.astro';
+import AddGameModal from '../components/AddGameModal.astro';
+import EditProfileModal from '../components/EditProfileModal.astro';
+import ParticleCanvas from '../components/ParticleCanvas.astro';
+import ToastNotification from '../components/ToastNotification.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>chebg | Lista de Juegos Favoritos</title>
+  <meta name="description" content="La colección estética e interactiva de juegos favoritos de Chebg." />
+  <link rel="icon" type="image/png" href="/images/chebg.png" />
+</head>
+<body>
+  <!-- Animated Background Canvas -->
+  <ParticleCanvas />
+
+  <!-- Toast Notification Container -->
+  <ToastNotification />
+
+  <!-- Sticky Header -->
+  <Header />
+
+  <!-- Main Hero -->
+  <HeroBanner />
+
+  <!-- Gamer Stats HUD -->
+  <GamerStatsHUD />
+
+  <!-- Control Panel & Filter Bar -->
+  <GameFilter />
+
+  <!-- Main Games Grid Section -->
+  <main class="container games-main-container">
+    <!-- Empty State: BOBO CHEBG -->
+    <div id="bobo-chebg-state" class="glass-card bobo-empty-card">
+      <div class="bobo-avatar-ring">
+        <img src="/images/chebg.png" alt="Bobo Chebg" class="bobo-img" />
+      </div>
+
+      <div class="bobo-tag">STATUS: LISTA VACÍA</div>
+      <h2 class="bobo-heading font-display gradient-text">BOBO CHEBG</h2>
+      <p class="bobo-text">
+        Bobo Chebg no ha puesto ningún juego todavía en su lista de favoritos.
+      </p>
+
+      <button class="btn-primary open-add-modal-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <span>Agregar el primer juego ahora</span>
+      </button>
+    </div>
+
+    <!-- Games Grid -->
+    <div id="user-games-grid" class="games-grid hidden">
+      <!-- Dynamic cards rendered by JS -->
+    </div>
+  </main>
+
+  <!-- Modals -->
+  <GameModal />
+  <AddGameModal />
+  <EditProfileModal />
+
+  <!-- Footer -->
+  <Footer />
+
+  <script>
+    import confetti from 'canvas-confetti';
+    import { CHEBG_GAMES, DEFAULT_PROFILE, type Game, type GamerProfile } from '../data/games';
+    import { playClickSound, playSuccessChime, playDeleteSound, playCheatFanfare } from '../utils/audio';
+    import { extractYoutubeId, calculateTotalHours } from '../utils/helpers';
+
+    const STORAGE_KEY = 'chebg_favorite_games_v1';
+    const PROFILE_KEY = 'chebg_profile_v1';
+
+    const getStoredGames = (): Game[] => {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        if (!data) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(CHEBG_GAMES));
+          return CHEBG_GAMES;
+        }
+        return JSON.parse(data);
+      } catch (e) {
+        return CHEBG_GAMES;
+      }
+    };
+
+    const saveStoredGames = (games: Game[]) => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(games));
+      } catch (e) {
+        console.error('Error saving games:', e);
+      }
+    };
+
+    const getStoredProfile = (): GamerProfile => {
+      try {
+        const data = localStorage.getItem(PROFILE_KEY);
+        return data ? JSON.parse(data) : DEFAULT_PROFILE;
+      } catch (e) {
+        return DEFAULT_PROFILE;
+      }
+    };
+
+    const saveStoredProfile = (prof: GamerProfile) => {
+      try {
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(prof));
+      } catch (e) {
+        console.error('Error saving profile:', e);
+      }
+    };
+
+    const triggerConfetti = () => {
+      try {
+        confetti({
+          particleCount: 90,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ['#ff007f', '#00f0ff', '#ffaa00', '#ffffff']
+        });
+      } catch (e) {}
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const grid = document.getElementById('user-games-grid');
+      const boboState = document.getElementById('bobo-chebg-state');
+      const counterEl = document.getElementById('total-games-counter');
+      const searchInput = document.getElementById('game-search-input') as HTMLInputElement;
+      const genreBtns = document.querySelectorAll('#genre-buttons .pill-btn');
+      const addModal = document.getElementById('add-game-modal');
+      const addTriggers = document.querySelectorAll('#header-add-trigger, #hero-add-trigger, #main-add-trigger, .open-add-modal-btn');
+      const loadPresetsBtns = document.querySelectorAll('#hero-presets-trigger, #load-presets-trigger');
+      const addForm = document.getElementById('add-game-form') as HTMLFormElement;
+
+      // Profile HUD elements
+      const roleEl = document.getElementById('hud-profile-role');
+      const locEl = document.getElementById('hud-profile-location');
+      const hoursEl = document.getElementById('hud-total-hours');
+      const compEl = document.getElementById('hud-completion-rate');
+      const favGenreEl = document.getElementById('hud-fav-genre');
+      const achEl = document.getElementById('hud-special-achievement');
+
+      const profileModal = document.getElementById('edit-profile-modal');
+      const profileTrigger = document.getElementById('edit-profile-trigger');
+      const profileCloseBtn = document.getElementById('profile-modal-close');
+      const profileForm = document.getElementById('edit-profile-form') as HTMLFormElement;
+
+      let currentGenre = 'all';
+      let currentQuery = '';
+
+      const updateProfileHUD = () => {
+        const prof = getStoredProfile();
+        const games = getStoredGames();
+
+        if (roleEl) roleEl.textContent = prof.role;
+        if (locEl) locEl.textContent = prof.location;
+        if (favGenreEl) favGenreEl.textContent = prof.favoriteGenre;
+        if (compEl) compEl.textContent = prof.completionRate || '0%';
+        if (achEl) achEl.textContent = prof.specialAchievement || 'DINOBOBO';
+
+        // Automatic Total Hours Calculation
+        const calculatedHours = calculateTotalHours(games);
+        if (hoursEl) hoursEl.textContent = calculatedHours;
+      };
+
+      const renderGames = () => {
+        const games = getStoredGames();
+        if (counterEl) counterEl.textContent = games.length.toString();
+
+        updateProfileHUD();
+
+        if (games.length === 0) {
+          if (boboState) boboState.classList.remove('hidden');
+          if (grid) grid.classList.add('hidden');
+          return;
+        }
+
+        if (boboState) boboState.classList.add('hidden');
+        if (grid) {
+          grid.classList.remove('hidden');
+
+          const filtered = games.filter(g => {
+            const matchesGenre = currentGenre === 'all' || g.genre === currentGenre;
+            const matchesQuery = !currentQuery || 
+              g.title.toLowerCase().includes(currentQuery) || 
+              g.developer.toLowerCase().includes(currentQuery);
+            return matchesGenre && matchesQuery;
+          });
+
+          if (filtered.length === 0) {
+            grid.innerHTML = `
+              <div class="glass-card no-results-card">
+                <div class="no-res-icon-wrap">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                </div>
+                <h3 class="no-res-title font-display gradient-text">No se encontraron resultados</h3>
+                <p class="no-res-subtitle">No hay juegos que coincidan con tu búsqueda. Prueba escribiendo otro título o seleccionando una categoría distinta.</p>
+                <button class="btn-secondary reset-filters-btn" id="reset-search-btn">
+                  🔄 Restablecer Filtros
+                </button>
+              </div>
+            `;
+            return;
+          }
+
+          grid.innerHTML = filtered.map(game => `
+            <article class="glass-card game-card-item" data-id="${game.id}">
+              <div class="card-art-box">
+                <img src="${game.coverImage || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1000'}" alt="${game.title}" class="card-cover-image" loading="lazy" />
+                <div class="card-overlay-gradient"></div>
+
+                ${game.badge ? `<span class="card-top-badge">${game.badge}</span>` : ''}
+
+                <div class="score-pill">
+                  <span class="score-star">★</span>
+                  <span class="score-num font-display">${game.score}</span>
+                </div>
+
+                <div class="card-top-actions">
+                  <button class="card-action-btn edit-game-btn" data-edit-id="${game.id}" title="Editar juego">
+                    ✏️
+                  </button>
+                  <button class="card-action-btn card-delete-btn" data-delete-id="${game.id}" title="Eliminar juego">
+                    ✕
+                  </button>
+                </div>
+              </div>
+
+              <div class="card-content-body">
+                <div class="card-meta">
+                  <span class="genre-name">${game.genre}</span>
+                  <span class="year-val">${game.year}</span>
+                </div>
+
+                <h3 class="card-game-title font-display">${game.title}</h3>
+                <p class="card-tagline">${game.tagline || 'Favorito oficial de Chebg.'}</p>
+
+                <div class="card-footer-row">
+                  <span class="dev-name">${game.developer}</span>
+                  <button class="btn-secondary btn-details view-detail-btn" data-modal-target="${game.id}">
+                    Ver Detalles ➔
+                  </button>
+                </div>
+              </div>
+            </article>
+          `).join('');
+
+          // 3D Card tilt effect
+          document.querySelectorAll('.game-card-item').forEach(card => {
+            card.addEventListener('mousemove', (e: any) => {
+              const rect = card.getBoundingClientRect();
+              const x = e.clientX - rect.left;
+              const y = e.clientY - rect.top;
+              const centerX = rect.width / 2;
+              const centerY = rect.height / 2;
+              const rotateX = (y - centerY) / 22;
+              const rotateY = (centerX - x) / 22;
+
+              (card as HTMLElement).style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+              (card as HTMLElement).style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+            });
+          });
+        }
+      };
+
+      // Reset Search & Filters
+      document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const resetBtn = target.closest('#reset-search-btn');
+        if (resetBtn) {
+          currentQuery = '';
+          currentGenre = 'all';
+          if (searchInput) searchInput.value = '';
+          genreBtns.forEach(b => b.classList.remove('active'));
+          const allPill = document.querySelector('#genre-buttons .pill-btn[data-genre="all"]');
+          if (allPill) allPill.classList.add('active');
+          renderGames();
+          playClickSound(800, 0.04);
+        }
+      });
+
+      // Open Add Modal with animation feedback
+      addTriggers.forEach(btn => {
+        btn.addEventListener('click', () => {
+          if ((window as any).openEditGameModal) {
+            (window as any).openEditGameModal(null);
+          } else if (addModal) {
+            addModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+          }
+          playClickSound(900, 0.05);
+        });
+      });
+
+      // Form submit (Handles both ADD and EDIT)
+      if (addForm) {
+        addForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const existingId = (document.getElementById('fg-game-id') as HTMLInputElement).value.trim();
+          const title = (document.getElementById('fg-title') as HTMLInputElement).value.trim();
+          const tagline = (document.getElementById('fg-tagline') as HTMLInputElement).value.trim();
+          const developer = (document.getElementById('fg-developer') as HTMLInputElement).value.trim() || 'Estudio Indie';
+          const year = parseInt((document.getElementById('fg-year') as HTMLInputElement).value) || 2025;
+          const genre = (document.getElementById('fg-genre') as HTMLSelectElement).value as any;
+          const score = (document.getElementById('fg-score') as HTMLSelectElement).value || '10 / 10';
+          const badge = (document.getElementById('fg-badge') as HTMLSelectElement).value || '';
+          const hoursPlayed = (document.getElementById('fg-hours') as HTMLInputElement).value.trim() || '100 hrs';
+          const coverImage = (document.getElementById('fg-cover') as HTMLInputElement).value.trim() || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1000';
+          const rawYoutube = (document.getElementById('fg-youtube') as HTMLInputElement).value.trim();
+          const youtubeId = extractYoutubeId(rawYoutube) || 'eaW0tYxi5rg';
+          const review = (document.getElementById('fg-review') as HTMLTextAreaElement).value.trim() || 'Un juego increíble en la colección de Chebg.';
+
+          let games = getStoredGames();
+
+          if (existingId) {
+            // Edit mode
+            const idx = games.findIndex(g => g.id === existingId);
+            if (idx !== -1) {
+              games[idx] = {
+                ...games[idx],
+                title,
+                tagline: tagline || games[idx].tagline,
+                developer,
+                year,
+                genre,
+                score,
+                badge,
+                hoursPlayed,
+                coverImage,
+                bannerImage: coverImage,
+                verdict: review.slice(0, 80) + '...',
+                chebgReview: review,
+                youtubeId
+              };
+            }
+          } else {
+            // Add new game mode
+            const newGame: Game = {
+              id: 'game-' + Date.now(),
+              title,
+              tagline: tagline || 'Selección especial de Chebg',
+              developer,
+              year,
+              genre,
+              platforms: ['PC', 'PS5'],
+              wantedStars: 5,
+              score,
+              badge: badge || 'MUST PLAY',
+              hoursPlayed,
+              coverImage,
+              bannerImage: coverImage,
+              verdict: review.slice(0, 80) + '...',
+              chebgReview: review,
+              highlights: ['Experiencia inolvidable', 'Recomendado por Chebg'],
+              favoriteFeature: 'Historia y Jugabilidad',
+              youtubeId
+            };
+            games.unshift(newGame);
+          }
+
+          saveStoredGames(games);
+
+          addForm.reset();
+          if (addModal) addModal.classList.add('hidden');
+          document.body.style.overflow = '';
+          renderGames();
+          triggerConfetti();
+
+          if ((window as any).showToast) {
+            (window as any).showToast(
+              existingId ? `"${title}" actualizado.` : `"${title}" guardado con éxito.`,
+              'success',
+              existingId ? 'JUEGO ACTUALIZADO' : 'JUEGO AGREGADO'
+            );
+          }
+        });
+      }
+
+      // Delete & Edit Global Event Listener with smooth exit animation
+      document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+
+        // Delete Game with smooth exit transition
+        const deleteBtn = target.closest('[data-delete-id]') as HTMLElement;
+        if (deleteBtn) {
+          e.stopPropagation();
+          const deleteId = deleteBtn.getAttribute('data-delete-id');
+          const cardEl = deleteBtn.closest('.game-card-item');
+
+          if (deleteId && cardEl) {
+            cardEl.classList.add('card-deleting');
+            playDeleteSound();
+
+            setTimeout(() => {
+              const current = getStoredGames();
+              const filtered = current.filter(g => g.id !== deleteId);
+              saveStoredGames(filtered);
+              renderGames();
+              if ((window as any).showToast) {
+                (window as any).showToast('Juego eliminado de la colección.', 'delete', 'ITEM REMOVIDO');
+              }
+            }, 400);
+          }
+          return;
+        }
+
+        // Edit Game
+        const editBtn = target.closest('[data-edit-id]') as HTMLElement;
+        if (editBtn) {
+          e.stopPropagation();
+          const editId = editBtn.getAttribute('data-edit-id');
+          if (editId) {
+            const current = getStoredGames();
+            const gameToEdit = current.find(g => g.id === editId) || CHEBG_GAMES.find(g => g.id === editId);
+            if (gameToEdit && (window as any).openEditGameModal) {
+              (window as any).openEditGameModal(gameToEdit);
+            }
+          }
+          return;
+        }
+      });
+
+      // Profile Modal Listeners
+      if (profileTrigger && profileModal) {
+        profileTrigger.addEventListener('click', () => {
+          const prof = getStoredProfile();
+          const roleInput = document.getElementById('fp-role') as HTMLInputElement;
+          const locInput = document.getElementById('fp-location') as HTMLInputElement;
+          const favGenreInput = document.getElementById('fp-fav-genre') as HTMLInputElement;
+
+          if (roleInput) roleInput.value = prof.role;
+          if (locInput) locInput.value = prof.location;
+          if (favGenreInput) favGenreInput.value = prof.favoriteGenre;
+
+          profileModal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+          playClickSound(800, 0.04);
+        });
+      }
+
+      if (profileCloseBtn && profileModal) {
+        profileCloseBtn.addEventListener('click', () => {
+          profileModal.classList.add('hidden');
+          document.body.style.overflow = '';
+        });
+      }
+
+      if (profileForm) {
+        profileForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const roleVal = (document.getElementById('fp-role') as HTMLInputElement).value.trim();
+          const locVal = (document.getElementById('fp-location') as HTMLInputElement).value.trim();
+          const favGenreVal = (document.getElementById('fp-fav-genre') as HTMLInputElement).value.trim();
+
+          const currentProf = getStoredProfile();
+          const updatedProf: GamerProfile = {
+            ...currentProf,
+            role: roleVal || currentProf.role,
+            location: locVal || currentProf.location,
+            favoriteGenre: favGenreVal || currentProf.favoriteGenre
+          };
+
+          saveStoredProfile(updatedProf);
+          if (profileModal) profileModal.classList.add('hidden');
+          document.body.style.overflow = '';
+          updateProfileHUD();
+          playSuccessChime();
+
+          if ((window as any).showToast) {
+            (window as any).showToast('Perfil de Gamer actualizado.', 'success', 'PERFIL GUARDADO');
+          }
+        });
+      }
+
+      // Load Presets
+      loadPresetsBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          saveStoredGames(CHEBG_GAMES);
+          renderGames();
+          triggerConfetti();
+          playSuccessChime();
+          if ((window as any).showToast) {
+            (window as any).showToast('Ejemplo base cargado.', 'success', 'JUEGO BASE');
+          }
+        });
+      });
+
+      // Search & Filter listeners
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          currentQuery = (e.target as HTMLInputElement).value.toLowerCase().trim();
+          renderGames();
+        });
+      }
+
+      genreBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          genreBtns.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentGenre = btn.getAttribute('data-genre') || 'all';
+          renderGames();
+          playClickSound(700, 0.03);
+        });
+      });
+
+      // Secret Keyboard Achievement Commands (CHEBG, RINECERENTE, ROBERTO, BOBERTO)
+      let keyBuffer = '';
+      document.addEventListener('keydown', (e) => {
+        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+        keyBuffer += e.key.toUpperCase();
+        if (keyBuffer.length > 15) keyBuffer = keyBuffer.slice(-15);
+
+        let unlockedAchievement = '';
+
+        if (keyBuffer.includes('CHEBG')) {
+          unlockedAchievement = 'DINOBOBO 🦖🔥';
+          keyBuffer = '';
+        } else if (keyBuffer.includes('RINECERENTE')) {
+          unlockedAchievement = 'RINECERENTE 🦏⚡';
+          keyBuffer = '';
+        } else if (keyBuffer.includes('ROBERTO')) {
+          unlockedAchievement = 'ROBERTO EL PRO 🎮✨';
+          keyBuffer = '';
+        } else if (keyBuffer.includes('BOBERTO')) {
+          unlockedAchievement = 'BOBERTO SUPREMO 👑🔥';
+          keyBuffer = '';
+        }
+
+        if (unlockedAchievement) {
+          const prof = getStoredProfile();
+          prof.specialAchievement = unlockedAchievement;
+          saveStoredProfile(prof);
+          updateProfileHUD();
+          triggerConfetti();
+          playCheatFanfare();
+
+          if ((window as any).showToast) {
+            (window as any).showToast(`¡LOGRO DESBLOQUEADO: ${unlockedAchievement}!`, 'cheat', 'NUEVO LOGRO');
+          }
+        }
+      });
+
+      renderGames();
+    });
+  </script>
+
+  <style>
+    .games-main-container {
+      padding-bottom: 5rem;
+    }
+
+    /* Bobo Chebg Empty Card */
+    .bobo-empty-card {
+      text-align: center;
+      padding: 5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 1.5rem 0 3rem 0;
+      border-color: rgba(255, 0, 127, 0.3);
+      box-shadow: 0 0 40px -10px rgba(255, 0, 127, 0.25);
+    }
+
+    .bobo-avatar-ring {
+      width: 105px;
+      height: 105px;
+      border-radius: 50%;
+      padding: 4px;
+      background: var(--gradient-vice);
+      box-shadow: 0 0 35px rgba(255, 0, 127, 0.5);
+      margin-bottom: 1.5rem;
+      animation: pulseGlow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 25px rgba(255, 0, 127, 0.4); }
+      100% { box-shadow: 0 0 45px rgba(0, 240, 255, 0.7); }
+    }
+
+    .bobo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      background: #000;
+    }
+
+    .bobo-tag {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      letter-spacing: 2px;
+      margin-bottom: 0.5rem;
+    }
+
+    .bobo-heading {
+      font-size: clamp(3rem, 6vw, 4.5rem);
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+
+    .bobo-text {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 520px;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.75rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</body>
+</html>

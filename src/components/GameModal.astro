@@ -1,0 +1,340 @@
+---
+---
+
+<div id="chebg-game-modal" class="modal-backdrop hidden">
+  <div class="glass-card modal-detail-dialog">
+    <button class="modal-close-btn" id="modal-close-trigger" title="Cerrar modal">✕</button>
+    
+    <div class="modal-body-content" id="modal-dynamic-content">
+      <!-- Dynamic content injected by client JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+  import { CHEBG_GAMES, type Game } from '../data/games';
+
+  const STORAGE_KEY = 'chebg_favorite_games_v1';
+
+  const getStoredGames = (): Game[] => {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      const parsed = data ? JSON.parse(data) : [];
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : CHEBG_GAMES;
+    } catch (e) {
+      return CHEBG_GAMES;
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('chebg-game-modal');
+    const closeBtn = document.getElementById('modal-close-trigger');
+    const dynamicContent = document.getElementById('modal-dynamic-content');
+
+    const openModal = (gameId: string) => {
+      const games = getStoredGames();
+      let game = games.find(g => g.id === gameId);
+      if (!game) {
+        game = CHEBG_GAMES.find(g => g.id === gameId);
+      }
+
+      if (!game || !modal || !dynamicContent) return;
+
+      const highlightsHtml = (game.highlights || ['Experiencia inolvidable', 'Selección de Chebg'])
+        .map(h => `<li class="modal-highlight-item"><span class="check-icon">✓</span> ${h}</li>`)
+        .join('');
+
+      dynamicContent.innerHTML = `
+        <div class="modal-hero-banner" style="background-image: linear-gradient(to bottom, rgba(7, 8, 11, 0.4), #07080b), url('${game.bannerImage || game.coverImage}')">
+          <div class="modal-badge-pill">${game.badge || 'SELECCIÓN CHEBG'}</div>
+          <h2 class="modal-game-title font-display">${game.title}</h2>
+          <div class="modal-meta-line">
+            <span class="gradient-text">${game.genre}</span> • <span>${game.developer}</span> • <span>${game.year}</span>
+          </div>
+        </div>
+
+        <div class="modal-inner-grid">
+          <div class="modal-main-col">
+            ${game.youtubeId ? `
+              <div class="trailer-container">
+                <iframe 
+                  src="https://www.youtube.com/embed/${game.youtubeId}?autoplay=0" 
+                  title="${game.title} Trailer" 
+                  frameborder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen
+                ></iframe>
+              </div>
+            ` : ''}
+
+            <div class="modal-section">
+              <h4 class="modal-sec-title font-display">Reseña de Chebg</h4>
+              <p class="modal-review-text">${game.chebgReview || game.verdict || 'Un juego verdaderamente especial en la colección.'}</p>
+            </div>
+
+            <div class="modal-section">
+              <h4 class="modal-sec-title font-display">Aspectos Destacados</h4>
+              <ul class="modal-highlights-list">
+                ${highlightsHtml}
+              </ul>
+            </div>
+          </div>
+
+          <div class="modal-sidebar-col">
+            <div class="glass-card modal-stat-box">
+              <span class="mstat-label">Puntuación Chebg</span>
+              <span class="mstat-val font-display gradient-text">${game.score}</span>
+            </div>
+
+            <div class="glass-card modal-stat-box">
+              <span class="mstat-label">Horas Invertidas</span>
+              <span class="mstat-val font-display">${game.hoursPlayed || 'N/A'}</span>
+            </div>
+
+            <div class="glass-card modal-stat-box">
+              <span class="mstat-label">Rating</span>
+              <div class="mstat-stars font-display text-gta-yellow">
+                ${Array.from({ length: 5 }).map((_, idx) => `<span class="${idx < (game.wantedStars || 5) ? 'star-gold' : 'star-dim'}">★</span>`).join('')}
+              </div>
+            </div>
+
+            <button class="btn-secondary modal-edit-btn" data-modal-edit-id="${game.id}">
+              ✏️ Editar Juego
+            </button>
+          </div>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeModal = () => {
+      if (!modal || !dynamicContent) return;
+      modal.classList.add('hidden');
+      dynamicContent.innerHTML = '';
+      document.body.style.overflow = '';
+    };
+
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const btn = target.closest('.view-detail-btn') as HTMLElement;
+      if (btn) {
+        const gameId = btn.getAttribute('data-modal-target');
+        if (gameId) openModal(gameId);
+      }
+
+      const editBtn = target.closest('[data-modal-edit-id]') as HTMLElement;
+      if (editBtn) {
+        const gameId = editBtn.getAttribute('data-modal-edit-id');
+        closeModal();
+        if (gameId && (window as any).openEditGameModal) {
+          const games = getStoredGames();
+          const game = games.find(g => g.id === gameId) || CHEBG_GAMES.find(g => g.id === gameId);
+          if (game) (window as any).openEditGameModal(game);
+        }
+      }
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+  });
+</script>
+
+<style is:global>
+  .modal-detail-dialog {
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85), 0 0 35px rgba(255, 0, 127, 0.2);
+    position: relative;
+    padding: 0;
+    margin: auto;
+    animation: modalScale 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes modalScale {
+    0% { transform: scale(0.92); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .modal-close-btn {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index: 20;
+    background: rgba(7, 8, 11, 0.85);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-close-btn:hover {
+    background: var(--accent-pink);
+    border-color: var(--accent-pink);
+    transform: scale(1.1);
+  }
+
+  .modal-hero-banner {
+    padding: 4.5rem 2rem 2rem 2rem;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .modal-badge-pill {
+    display: inline-block;
+    background: rgba(255, 0, 127, 0.2);
+    color: var(--accent-pink);
+    border: 1px solid var(--accent-pink);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 99px;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+  }
+
+  .modal-game-title {
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1.1;
+    color: #fff;
+  }
+
+  .modal-meta-line {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-top: 8px;
+  }
+
+  .modal-inner-grid {
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1.8fr 1fr;
+    gap: 2rem;
+  }
+
+  .trailer-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    margin-bottom: 1.75rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .trailer-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .modal-sec-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.75rem;
+  }
+
+  .modal-review-text {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text-muted);
+    margin-bottom: 1.75rem;
+  }
+
+  .modal-highlights-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .modal-highlight-item {
+    font-size: 0.9rem;
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .check-icon {
+    color: var(--accent-cyan);
+    font-weight: bold;
+  }
+
+  .modal-sidebar-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .modal-stat-box {
+    padding: 1.35rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mstat-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .mstat-val {
+    font-size: 1.85rem;
+    font-weight: 800;
+  }
+
+  .mstat-stars {
+    font-size: 1.4rem;
+    display: flex;
+    gap: 4px;
+  }
+
+  .star-gold {
+    color: var(--accent-amber);
+  }
+
+  .star-dim {
+    color: rgba(255, 255, 255, 0.15);
+  }
+
+  @media (max-width: 768px) {
+    .modal-inner-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

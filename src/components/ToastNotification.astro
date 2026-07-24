@@ -1,0 +1,135 @@
+---
+---
+
+<div id="toast-container" class="toast-container"></div>
+
+<script>
+  import { playSuccessChime, playCheatFanfare, playDeleteSound } from '../utils/audio';
+
+  (window as any).showToast = (message: string, type: 'success' | 'cheat' | 'info' | 'delete' = 'success', title = 'CHEBG HUD') => {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `hud-toast toast-${type}`;
+
+    let icon = '⚡';
+    if (type === 'success') {
+      icon = '✓';
+      playSuccessChime();
+    } else if (type === 'cheat') {
+      icon = '⭐';
+      playCheatFanfare();
+    } else if (type === 'delete') {
+      icon = '✕';
+      playDeleteSound();
+    }
+
+    toast.innerHTML = `
+      <div class="toast-icon-wrap">${icon}</div>
+      <div class="toast-content">
+        <span class="toast-title font-display">${title}</span>
+        <span class="toast-msg">${message}</span>
+      </div>
+    `;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.add('show');
+    }, 20);
+
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }, 3500);
+  };
+</script>
+
+<style is:global>
+  .toast-container {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+  }
+
+  .hud-toast {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
+    background: rgba(15, 18, 25, 0.92);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    transform: translateX(120%);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+    opacity: 0;
+    pointer-events: auto;
+    min-width: 280px;
+    max-width: 380px;
+  }
+
+  .hud-toast.show {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  .hud-toast.toast-success {
+    border-color: rgba(0, 240, 255, 0.5);
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.25);
+  }
+
+  .hud-toast.toast-cheat {
+    border-color: rgba(255, 0, 127, 0.6);
+    background: linear-gradient(135deg, rgba(20, 10, 25, 0.95), rgba(255, 0, 127, 0.2));
+    box-shadow: 0 0 30px rgba(255, 0, 127, 0.35);
+  }
+
+  .hud-toast.toast-delete {
+    border-color: rgba(255, 60, 60, 0.5);
+    box-shadow: 0 0 20px rgba(255, 60, 60, 0.2);
+  }
+
+  .toast-icon-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--gradient-vice);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .toast-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .toast-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--accent-cyan);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .toast-msg {
+    font-size: 0.9rem;
+    color: var(--text-main);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+</style>

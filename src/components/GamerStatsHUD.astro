@@ -1,0 +1,367 @@
+---
+import { DEFAULT_PROFILE } from '../data/games';
+import { Clock, Trophy, Gamepad2, Flame, MapPin, Activity, Edit3 } from 'lucide-astro';
+---
+
+<section id="stats" class="stats-section">
+  <div class="container">
+    <div class="section-tag-row">
+      <div class="tag-left">
+        <Activity size={16} class="tag-icon" />
+        <span>GAMER STATUS & HUD METRICS</span>
+      </div>
+
+      <button class="edit-profile-btn" id="edit-profile-trigger" title="Editar información del perfil">
+        <Edit3 size={14} />
+        <span>Editar Perfil</span>
+      </button>
+    </div>
+
+    <div class="stats-grid">
+      <!-- Profile Card -->
+      <div class="glass-card profile-card">
+        <div class="profile-header">
+          <div class="profile-avatar-wrap">
+            <img src="/images/chebg.png" alt="Chebg Avatar" class="profile-avatar" />
+          </div>
+          <div class="profile-meta">
+            <div class="name-badge-row">
+              <h3 class="profile-name font-display" id="hud-profile-name">{DEFAULT_PROFILE.name}</h3>
+              <span class="online-dot-pill">ONLINE</span>
+            </div>
+            <span class="profile-role" id="hud-profile-role">{DEFAULT_PROFILE.role}</span>
+            <span class="profile-location">
+              <MapPin size={13} class="loc-icon" /> <span id="hud-profile-location">{DEFAULT_PROFILE.location}</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="profile-skills">
+          <div class="skill-row">
+            <div class="skill-info">
+              <span>Open World & RPGs</span>
+              <span class="skill-num">100%</span>
+            </div>
+            <div class="skill-bar-track">
+              <div class="skill-bar-fill" style="width: 100%; background: var(--gradient-vice);"></div>
+            </div>
+          </div>
+
+          <div class="skill-row">
+            <div class="skill-info">
+              <span>Físicas de Conducción</span>
+              <span class="skill-num">98%</span>
+            </div>
+            <div class="skill-bar-track">
+              <div class="skill-bar-fill" style="width: 98%; background: linear-gradient(90deg, #00f0ff, #70ffc3);"></div>
+            </div>
+          </div>
+
+          <div class="skill-row">
+            <div class="skill-info">
+              <span>Paciencia en Boss Fights</span>
+              <span class="skill-num">95%</span>
+            </div>
+            <div class="skill-bar-track">
+              <div class="skill-bar-fill" style="width: 95%; background: linear-gradient(90deg, #ff007f, #ffaa00);"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="metrics-grid">
+        <div class="glass-card metric-box">
+          <div class="metric-icon-box cyan-glow">
+            <Clock size={24} />
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">Horas Totales (Calculado)</span>
+            <span class="metric-value font-display" id="hud-total-hours">0 hrs</span>
+          </div>
+        </div>
+
+        <div class="glass-card metric-box">
+          <div class="metric-icon-box pink-glow">
+            <Trophy size={24} />
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">Completitud (Próximamente)</span>
+            <span class="metric-value font-display gradient-text" id="hud-completion-rate">0%</span>
+          </div>
+        </div>
+
+        <div class="glass-card metric-box">
+          <div class="metric-icon-box purple-glow">
+            <Gamepad2 size={24} />
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">Género Favorito</span>
+            <span class="metric-value font-display" id="hud-fav-genre">{DEFAULT_PROFILE.favoriteGenre}</span>
+          </div>
+        </div>
+
+        <div class="glass-card metric-box featured-metric">
+          <div class="metric-icon-box flame-glow">
+            <Flame size={28} />
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">Logro Activo</span>
+            <span class="metric-value font-display grand-value" id="hud-special-achievement">{DEFAULT_PROFILE.specialAchievement}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .stats-section {
+    padding: 3.5rem 0;
+  }
+
+  .section-tag-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--accent-cyan);
+    letter-spacing: 2px;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .tag-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tag-icon {
+    color: var(--accent-pink);
+  }
+
+  .edit-profile-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .edit-profile-btn:hover {
+    background: rgba(0, 240, 255, 0.15);
+    border-color: var(--accent-cyan);
+    color: #fff;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.25fr;
+    gap: 1.5rem;
+  }
+
+  .profile-card {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .profile-avatar-wrap {
+    width: 76px;
+    height: 76px;
+    border-radius: 20px;
+    overflow: hidden;
+    padding: 2px;
+    background: var(--gradient-vice);
+    box-shadow: 0 0 25px rgba(255, 0, 127, 0.4);
+    flex-shrink: 0;
+  }
+
+  .profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 18px;
+    background: #000;
+  }
+
+  .name-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .profile-name {
+    font-size: 1.85rem;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+
+  .online-dot-pill {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #00ffaa;
+    background: rgba(0, 255, 170, 0.12);
+    border: 1px solid rgba(0, 255, 170, 0.4);
+    padding: 2px 8px;
+    border-radius: 99px;
+    letter-spacing: 1px;
+  }
+
+  .profile-role {
+    font-size: 0.85rem;
+    color: var(--accent-cyan);
+    font-weight: 600;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .profile-location {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .loc-icon {
+    color: var(--accent-pink);
+  }
+
+  .profile-skills {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .skill-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .skill-num {
+    color: var(--text-main);
+  }
+
+  .skill-bar-track {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .skill-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 1s ease-out;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .metric-box {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .metric-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+  }
+
+  .cyan-glow {
+    color: var(--accent-cyan);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+  }
+
+  .pink-glow {
+    color: var(--accent-pink);
+    border: 1px solid rgba(255, 0, 127, 0.3);
+    box-shadow: 0 0 15px rgba(255, 0, 127, 0.15);
+  }
+
+  .purple-glow {
+    color: var(--accent-purple);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.15);
+  }
+
+  .flame-glow {
+    color: var(--accent-amber);
+    border: 1px solid rgba(255, 170, 0, 0.4);
+    box-shadow: 0 0 20px rgba(255, 170, 0, 0.25);
+  }
+
+  .featured-metric {
+    grid-column: span 2;
+    background: linear-gradient(135deg, rgba(18, 22, 31, 0.9), rgba(255, 0, 127, 0.14));
+    border-color: rgba(255, 0, 127, 0.35);
+  }
+
+  .metric-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .metric-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .metric-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-top: 3px;
+  }
+
+  .grand-value {
+    font-size: 2.2rem;
+    background: var(--gradient-vice);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  @media (max-width: 992px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

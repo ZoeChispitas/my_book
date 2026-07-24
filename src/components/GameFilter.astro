@@ -1,0 +1,213 @@
+---
+import { Search, Plus, Zap } from 'lucide-astro';
+---
+
+<div id="games" class="filter-section">
+  <div class="container">
+    <div class="filter-card glass-card">
+      <!-- Top Row: Search + Counter + Action Buttons -->
+      <div class="filter-top-row">
+        <!-- Search Input -->
+        <div class="search-input-wrap">
+          <Search size={18} class="search-icon" />
+          <input 
+            type="text" 
+            id="game-search-input" 
+            placeholder="Buscar por título, estudio o género..." 
+            class="search-input"
+          />
+        </div>
+
+        <!-- Counter Badge -->
+        <div class="counter-badge">
+          <span class="count-number font-display gradient-text" id="total-games-counter">0</span>
+          <span class="count-label">Juegos</span>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-btn-group">
+          <button class="btn-primary action-btn" id="main-add-trigger">
+            <Plus size={16} />
+            <span>Agregar Juego</span>
+          </button>
+          <button class="btn-secondary action-btn" id="load-presets-trigger">
+            <Zap size={16} class="zap-icon" />
+            <span>Cargar Ejemplo</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Bottom Row: Expanded Genre Pills -->
+      <div class="filter-bottom-row">
+        <div class="filter-pills-wrap" id="genre-buttons">
+          <button class="pill-btn active" data-genre="all">Todos</button>
+          <button class="pill-btn" data-genre="Open World">Open World</button>
+          <button class="pill-btn" data-genre="RPG">RPG</button>
+          <button class="pill-btn" data-genre="Acción">Acción</button>
+          <button class="pill-btn" data-genre="Sigilo">Sigilo</button>
+          <button class="pill-btn" data-genre="Indie">Indie</button>
+          <button class="pill-btn" data-genre="Survival">Survival</button>
+          <button class="pill-btn" data-genre="Carreras">Carreras</button>
+          <button class="pill-btn" data-genre="Terror">Terror</button>
+          <button class="pill-btn" data-genre="Estrategia">Estrategia</button>
+          <button class="pill-btn" data-genre="Shooter">Shooter</button>
+          <button class="pill-btn" data-genre="Aventura">Aventura</button>
+          <button class="pill-btn" data-genre="Plataformas">Plataformas</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .filter-section {
+    padding: 1rem 0 2.5rem 0;
+  }
+
+  .filter-card {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .filter-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .search-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    padding: 10px 18px;
+    border-radius: 99px;
+    flex: 1;
+    min-width: 280px;
+    transition: all 0.25s ease;
+  }
+
+  .search-input-wrap:focus-within {
+    border-color: var(--accent-pink);
+    box-shadow: 0 0 20px rgba(255, 0, 127, 0.25);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .search-icon {
+    color: var(--accent-cyan);
+    flex-shrink: 0;
+  }
+
+  .search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    width: 100%;
+  }
+
+  .search-input::placeholder {
+    color: var(--text-dim);
+  }
+
+  .counter-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 6px 16px;
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .count-number {
+    font-size: 1.75rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .count-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+
+  .action-btn-group {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 20px;
+    font-size: 0.88rem;
+  }
+
+  .zap-icon {
+    color: var(--accent-amber);
+  }
+
+  .filter-bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 1rem;
+  }
+
+  .filter-pills-wrap {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .pill-btn {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 99px;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .pill-btn:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .pill-btn.active {
+    background: rgba(255, 0, 127, 0.15);
+    color: #fff;
+    font-weight: 700;
+    border-color: var(--accent-pink);
+    box-shadow: 0 0 15px rgba(255, 0, 127, 0.25);
+  }
+
+  @media (max-width: 868px) {
+    .filter-top-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .action-btn-group {
+      justify-content: stretch;
+    }
+    .action-btn {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+</style>

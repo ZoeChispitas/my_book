@@ -1,0 +1,260 @@
+---
+import { Plus, Volume2, VolumeX, Sparkles, Gamepad2, ShieldAlert } from 'lucide-astro';
+---
+
+<header class="navbar-header">
+  <div class="container header-container">
+    <!-- Brand Logo -->
+    <a href="#" class="brand-logo" id="brand-logo-btn">
+      <div class="logo-avatar-wrap">
+        <img src="/images/chebg.png" alt="Chebg Logo" class="brand-avatar" />
+      </div>
+      <div class="brand-text-wrap">
+        <div class="title-row">
+          <span class="brand-title font-display">CHEBG</span>
+        </div>
+        <span class="brand-subtitle">FAVORITE GAMES VAULT</span>
+      </div>
+    </a>
+
+    <!-- Navigation Actions -->
+    <nav class="nav-actions">
+      <a href="#games" class="nav-link">
+        <Gamepad2 size={16} class="nav-icon" />
+        <span>Juegos</span>
+      </a>
+      <a href="#stats" class="nav-link">
+        <Sparkles size={16} class="nav-icon" />
+        <span>Estadísticas</span>
+      </a>
+
+      <!-- Audio SFX Toggle Button -->
+      <button class="sfx-toggle-btn" id="sfx-toggle-trigger" title="Activar/Desactivar Efectos de Sonido">
+        <Volume2 size={18} id="sfx-icon-on" class="sfx-icon" />
+        <VolumeX size={18} id="sfx-icon-off" class="sfx-icon hidden" />
+      </button>
+
+      <button class="btn-primary btn-header-add" id="header-add-trigger">
+        <Plus size={16} />
+        <span>Agregar Juego</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<script>
+  import { playClickSound, setSoundEnabled, isSoundEnabled } from '../utils/audio';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const sfxBtn = document.getElementById('sfx-toggle-trigger');
+    const iconOn = document.getElementById('sfx-icon-on');
+    const iconOff = document.getElementById('sfx-icon-off');
+
+    const updateSfxUI = () => {
+      const enabled = isSoundEnabled();
+      if (enabled) {
+        iconOn?.classList.remove('hidden');
+        iconOff?.classList.add('hidden');
+        sfxBtn?.classList.add('active');
+      } else {
+        iconOn?.classList.add('hidden');
+        iconOff?.classList.remove('hidden');
+        sfxBtn?.classList.remove('active');
+      }
+    };
+
+    updateSfxUI();
+
+    sfxBtn?.addEventListener('click', () => {
+      const current = isSoundEnabled();
+      setSoundEnabled(!current);
+      updateSfxUI();
+      if (!current) playClickSound(800, 0.05);
+    });
+
+    // Header Brand Logo click interaction
+    const logoBtn = document.getElementById('brand-logo-btn');
+    logoBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const statsSection = document.getElementById('stats');
+      if (statsSection) {
+        statsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+      const profileCard = document.querySelector('.profile-card');
+      if (profileCard) {
+        profileCard.classList.remove('pulse-glow');
+        void (profileCard as HTMLElement).offsetWidth;
+        profileCard.classList.add('pulse-glow');
+      }
+      const editTrigger = document.getElementById('edit-profile-trigger');
+      if (editTrigger) {
+        setTimeout(() => editTrigger.click(), 400);
+      }
+    });
+
+    // Sound feedback for navigation & buttons
+    document.querySelectorAll('.nav-link, button, .brand-logo').forEach(el => {
+      el.addEventListener('mouseenter', () => playClickSound(750, 0.02));
+      el.addEventListener('click', () => playClickSound(900, 0.04));
+    });
+  });
+</script>
+
+<style>
+  .navbar-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(7, 8, 11, 0.82);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.85rem 0;
+    transition: all 0.3s ease;
+  }
+
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+  }
+
+  .logo-avatar-wrap {
+    position: relative;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--gradient-vice);
+    padding: 2px;
+    box-shadow: 0 0 20px rgba(255, 0, 127, 0.35);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+  }
+
+  .brand-logo:hover .logo-avatar-wrap {
+    transform: scale(1.1) rotate(-4deg);
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.6);
+  }
+
+  .brand-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+    background: #000;
+  }
+
+  .brand-text-wrap {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .brand-title {
+    font-size: 1.45rem;
+    font-weight: 900;
+    color: var(--text-main);
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+
+  .gta-vi-tag {
+    font-size: 0.65rem;
+    font-weight: 900;
+    background: var(--gradient-vice);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+  }
+
+  .brand-subtitle {
+    font-size: 0.68rem;
+    color: var(--accent-cyan);
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-top: 3px;
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+  }
+
+  .nav-link:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .nav-icon {
+    color: var(--accent-cyan);
+  }
+
+  .sfx-toggle-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .sfx-toggle-btn.active {
+    color: var(--accent-pink);
+    border-color: rgba(255, 0, 127, 0.4);
+    box-shadow: 0 0 15px rgba(255, 0, 127, 0.25);
+  }
+
+  .sfx-toggle-btn:hover {
+    transform: scale(1.05);
+  }
+
+  .btn-header-add {
+    padding: 8px 18px;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  @media (max-width: 640px) {
+    .nav-link {
+      display: none;
+    }
+  }
+</style>

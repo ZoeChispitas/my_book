@@ -1,0 +1,208 @@
+---
+import type { Game } from '../data/games';
+
+interface Props {
+  game: Game;
+}
+
+const { game } = Astro.props;
+---
+
+<article class="glass-card game-card-item" data-id={game.id}>
+  <div class="card-art-box">
+    <img src={game.coverImage} alt={game.title} class="card-cover-image" loading="lazy" />
+    <div class="card-overlay-gradient"></div>
+
+    {game.badge && (
+      <span class="card-top-badge">{game.badge}</span>
+    )}
+
+    <div class="score-pill">
+      <span class="score-star">★</span>
+      <span class="score-num font-display">{game.score}</span>
+    </div>
+
+    <button class="card-delete-btn" data-delete-id={game.id} title="Eliminar juego">
+      ✕
+    </button>
+  </div>
+
+  <div class="card-content-body">
+    <div class="card-meta">
+      <span class="genre-name">{game.genre}</span>
+      <span class="year-val">{game.year}</span>
+    </div>
+
+    <h3 class="card-game-title font-display">{game.title}</h3>
+    <p class="card-tagline">{game.tagline}</p>
+
+    <div class="card-footer-row">
+      <span class="dev-name">{game.developer}</span>
+      <button class="btn-secondary btn-details view-detail-btn" data-modal-target={game.id}>
+        Ver Detalles ➔
+      </button>
+    </div>
+  </div>
+</article>
+
+<style>
+  .game-card-item {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .card-art-box {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+  }
+
+  .card-cover-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .game-card-item:hover .card-cover-image {
+    transform: scale(1.06);
+  }
+
+  .card-overlay-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(18, 22, 31, 1) 0%, transparent 60%);
+  }
+
+  .card-top-badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    z-index: 3;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 99px;
+    background: rgba(7, 8, 11, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-color);
+    color: var(--accent-cyan);
+    letter-spacing: 1px;
+  }
+
+  .score-pill {
+    position: absolute;
+    bottom: 12px;
+    right: 14px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(7, 8, 11, 0.85);
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+  }
+
+  .score-star {
+    color: var(--accent-amber);
+    font-size: 0.85rem;
+  }
+
+  .score-num {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .card-delete-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 5;
+    background: rgba(7, 8, 11, 0.85);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+  }
+
+  .card-delete-btn:hover {
+    background: var(--accent-pink);
+    color: #fff;
+    border-color: var(--accent-pink);
+  }
+
+  .card-content-body {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+  }
+
+  .genre-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-pink);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .year-val {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+
+  .card-game-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.35rem;
+    color: var(--text-main);
+  }
+
+  .card-tagline {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin-bottom: 1.25rem;
+  }
+
+  .card-footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .dev-name {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .btn-details {
+    padding: 6px 14px;
+    font-size: 0.82rem;
+  }
+</style>

@@ -1,0 +1,148 @@
+---
+---
+
+<div id="edit-profile-modal" class="modal-backdrop hidden">
+  <div class="glass-card profile-dialog-box">
+    <div class="modal-header-bar">
+      <div class="modal-title-group">
+        <span class="modal-pre-title">GAMER HUD</span>
+        <h2 class="modal-title font-display">EDITAR PERFIL & METRICAS</h2>
+      </div>
+      <button class="modal-close-icon" id="profile-modal-close">✕</button>
+    </div>
+
+    <form id="edit-profile-form" class="modal-form-content">
+      <div class="form-grid">
+        <!-- Role -->
+        <div class="input-field-group col-span-2">
+          <label for="fp-role">Rol / Título del Perfil</label>
+          <input type="text" id="fp-role" required placeholder="Ej: Pro Gamer & Video Game Curator" class="clean-input" />
+        </div>
+
+        <!-- Location / Setup -->
+        <div class="input-field-group col-span-2">
+          <label for="fp-location">Setup / Ubicación</label>
+          <input type="text" id="fp-location" required placeholder="Ej: Pro Gaming Setup" class="clean-input" />
+        </div>
+
+        <!-- Favorite Genre -->
+        <div class="input-field-group col-span-2">
+          <label for="fp-fav-genre">Género Favorito</label>
+          <input type="text" id="fp-fav-genre" required placeholder="Ej: Open World & RPGs" class="clean-input" />
+        </div>
+      </div>
+
+      <div class="modal-form-actions">
+        <button type="submit" class="btn-primary submit-btn">
+          💾 Guardar Perfil
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  .profile-dialog-box {
+    width: 100%;
+    max-width: 540px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 240, 255, 0.15);
+    padding: 0;
+    margin: auto;
+    animation: modalScale 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes modalScale {
+    0% { transform: scale(0.92); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .modal-header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .modal-pre-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    letter-spacing: 1.5px;
+    display: block;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+  }
+
+  .modal-close-icon {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+  }
+
+  .modal-close-icon:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+  }
+
+  .modal-form-content {
+    padding: 1.75rem 2rem;
+  }
+
+  .form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .input-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .input-field-group label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .clean-input {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-main);
+    padding: 10px 14px;
+    font-family: var(--font-sans);
+    font-size: 0.92rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .clean-input:focus {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+  }
+
+  .modal-form-actions {
+    margin-top: 1.5rem;
+  }
+
+  .submit-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 0;
+  }
+</style>

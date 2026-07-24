@@ -1,0 +1,285 @@
+---
+---
+
+<div class="radio-bar-floating">
+  <div class="container radio-container">
+    <!-- Radio Wheel / Icon -->
+    <div class="radio-brand">
+      <div class="radio-icon-box">📻</div>
+      <div class="radio-titles">
+        <span class="r-station-label">LOS SANTOS RADIO</span>
+        <span class="r-station-name" id="current-station-name">NON-STOP-POP FM</span>
+      </div>
+    </div>
+
+    <!-- Equalizer Visualizer -->
+    <div class="radio-eq" id="radio-eq">
+      <span class="eq-bar"></span>
+      <span class="eq-bar"></span>
+      <span class="eq-bar"></span>
+      <span class="eq-bar"></span>
+      <span class="eq-bar"></span>
+    </div>
+
+    <!-- Radio Controls -->
+    <div class="radio-controls">
+      <button class="radio-btn" id="radio-prev-btn" title="Estación Anterior">⏮</button>
+      <button class="radio-btn play-btn" id="radio-play-btn" title="Reproducir Radio">▶</button>
+      <button class="radio-btn" id="radio-next-btn" title="Siguiente Estación">⏭</button>
+    </div>
+
+    <!-- Station Selector Dropdown/Pills -->
+    <div class="radio-stations-list">
+      <button class="st-pill active" data-station="Non-Stop-Pop FM" data-freq="100.7 FM" data-audio="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=synthwave-80s-110045.mp3">
+        POP
+      </button>
+      <button class="st-pill" data-station="Radio Los Santos" data-freq="106.1 FM" data-audio="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a81665.mp3?filename=cyberpunk-2099-10701.mp3">
+        HIP HOP
+      </button>
+      <button class="st-pill" data-station="West Coast Classics" data-freq="95.6 FM" data-audio="https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=funky-synth-11234.mp3">
+        FUNK
+      </button>
+      <button class="st-pill" data-station="Space 103.2" data-freq="103.2 FM" data-audio="https://cdn.pixabay.com/download/audio/2022/10/14/audio_9939b4b04e.mp3?filename=retro-gaming-124976.mp3">
+        RETRO
+      </button>
+    </div>
+
+    <div class="radio-freq-badge" id="current-station-freq">
+      100.7 FM
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const playBtn = document.getElementById('radio-play-btn');
+    const prevBtn = document.getElementById('radio-prev-btn');
+    const nextBtn = document.getElementById('radio-next-btn');
+    const stationNameEl = document.getElementById('current-station-name');
+    const stationFreqEl = document.getElementById('current-station-freq');
+    const eqBars = document.getElementById('radio-eq');
+    const stationPills = document.querySelectorAll('.st-pill');
+
+    const audio = new Audio();
+    let isPlaying = false;
+    let currentIdx = 0;
+
+    const stations = Array.from(stationPills).map(pill => ({
+      name: pill.getAttribute('data-station') || 'Radio',
+      freq: pill.getAttribute('data-freq') || '100.0 FM',
+      src: pill.getAttribute('data-audio') || ''
+    }));
+
+    const loadStation = (idx: number) => {
+      currentIdx = (idx + stations.length) % stations.length;
+      const st = stations[currentIdx];
+
+      if (stationNameEl) stationNameEl.textContent = st.name;
+      if (stationFreqEl) stationFreqEl.textContent = st.freq;
+
+      stationPills.forEach((pill, i) => {
+        if (i === currentIdx) pill.classList.add('active');
+        else pill.classList.remove('active');
+      });
+
+      audio.src = st.src;
+      if (isPlaying) {
+        audio.play().catch(() => {});
+      }
+    };
+
+    const togglePlay = () => {
+      if (!audio.src) {
+        loadStation(0);
+      }
+
+      if (isPlaying) {
+        audio.pause();
+        isPlaying = false;
+        if (playBtn) playBtn.textContent = '▶';
+        if (eqBars) eqBars.classList.remove('playing');
+      } else {
+        audio.play().then(() => {
+          isPlaying = true;
+          if (playBtn) playBtn.textContent = '⏸';
+          if (eqBars) eqBars.classList.add('playing');
+        }).catch(err => {
+          console.warn('Audio play prevented:', err);
+        });
+      }
+    };
+
+    if (playBtn) playBtn.addEventListener('click', togglePlay);
+    if (prevBtn) prevBtn.addEventListener('click', () => loadStation(currentIdx - 1));
+    if (nextBtn) nextBtn.addEventListener('click', () => loadStation(currentIdx + 1));
+
+    stationPills.forEach((pill, idx) => {
+      pill.addEventListener('click', () => {
+        loadStation(idx);
+        if (!isPlaying) togglePlay();
+      });
+    });
+  });
+</script>
+
+<style>
+  .radio-bar-floating {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 90;
+    background: rgba(9, 11, 14, 0.95);
+    border-top: 2px solid var(--gta-yellow);
+    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(12px);
+    padding: 10px 0;
+  }
+
+  .radio-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .radio-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .radio-icon-box {
+    font-size: 1.5rem;
+    background: var(--gta-yellow);
+    color: #000;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    box-shadow: 0 0 10px var(--gta-yellow-glow);
+  }
+
+  .radio-titles {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .r-station-label {
+    font-family: var(--font-hud);
+    font-size: 0.65rem;
+    color: var(--gta-text-muted);
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .r-station-name {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    color: var(--gta-yellow);
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+
+  .radio-eq {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 20px;
+  }
+
+  .eq-bar {
+    width: 3px;
+    height: 6px;
+    background: var(--gta-yellow);
+    transition: height 0.2s ease;
+  }
+
+  .radio-eq.playing .eq-bar:nth-child(1) { animation: eq 0.6s infinite alternate ease-in-out; }
+  .radio-eq.playing .eq-bar:nth-child(2) { animation: eq 0.8s infinite alternate ease-in-out 0.1s; }
+  .radio-eq.playing .eq-bar:nth-child(3) { animation: eq 0.5s infinite alternate ease-in-out 0.2s; }
+  .radio-eq.playing .eq-bar:nth-child(4) { animation: eq 0.9s infinite alternate ease-in-out 0.15s; }
+  .radio-eq.playing .eq-bar:nth-child(5) { animation: eq 0.7s infinite alternate ease-in-out 0.3s; }
+
+  @keyframes eq {
+    0% { height: 4px; }
+    100% { height: 20px; background: var(--gta-accent-green); }
+  }
+
+  .radio-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .radio-btn {
+    background: #181C23;
+    border: 1px solid var(--gta-border);
+    color: var(--gta-text);
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .radio-btn:hover {
+    border-color: var(--gta-yellow);
+    color: var(--gta-yellow);
+  }
+
+  .radio-btn.play-btn {
+    background: var(--gta-yellow);
+    color: #000;
+    font-weight: bold;
+  }
+
+  .radio-btn.play-btn:hover {
+    background: #FFF;
+  }
+
+  .radio-stations-list {
+    display: flex;
+    gap: 6px;
+  }
+
+  .st-pill {
+    font-family: var(--font-hud);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    background: #12151B;
+    color: var(--gta-text-muted);
+    border: 1px solid var(--gta-border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .st-pill.active {
+    background: rgba(245, 191, 3, 0.15);
+    color: var(--gta-yellow);
+    border-color: var(--gta-yellow);
+  }
+
+  .radio-freq-badge {
+    font-family: var(--font-hud);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--gta-accent-green);
+    background: #000;
+    padding: 4px 10px;
+    border: 1px solid var(--gta-accent-green);
+  }
+
+  @media (max-width: 768px) {
+    .radio-stations-list, .radio-freq-badge {
+      display: none;
+    }
+  }
+</style>
