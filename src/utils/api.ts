@@ -1,7 +1,7 @@
 import type { Game, GamerProfile } from '../data/games';
 
-// Render Web Service API URL or local fallback
-const API_BASE = import.meta.env.PUBLIC_API_URL || 'https://chebg-vault-api.onrender.com/api';
+// Render Web Service Live API URL
+const API_BASE = import.meta.env.PUBLIC_API_URL || 'https://preferences-vault-api.onrender.com/api';
 
 // Helper to fetch games from Render PostgreSQL DB (with localStorage fallback)
 export const fetchGamesFromAPI = async (localFallback: Game[]): Promise<Game[]> => {

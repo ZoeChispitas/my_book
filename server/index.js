@@ -6,17 +6,20 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 10000;
 
 // Allow CORS from any origin for Cloudflare Pages frontend
 app.use(cors({ origin: '*' }));
 app.use(express.json({ limit: '10mb' })); // Support base64 image uploads
 
-// Database Connection String
-let connectionString = process.env.DATABASE_URL || 'postgresql://zoe_admin:0Vt5nnMTLbTawqLAac4bplHIhkztmslh@dpg-d9ht0004n6ts73bg4aug-a.virginia-postgres.render.com/preferences_vault';
+let connectionString = process.env.DATABASE_URL;
 
-// Ensure SSL and full host domain for Render external connections
-if (!connectionString.includes('.render.com') && connectionString.includes('@dpg-')) {
+if (!connectionString) {
+  console.error('❌ FATAL: DATABASE_URL environment variable is missing!');
+}
+
+// Ensure SSL and full host domain for Render external connections if needed
+if (connectionString && !connectionString.includes('.render.com') && connectionString.includes('@dpg-')) {
   connectionString = connectionString.replace(/@([^/]+)\//, '@$1.virginia-postgres.render.com/');
 }
 
@@ -117,7 +120,6 @@ app.get('/api/health', (req, res) => {
 app.get('/api/games', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM games ORDER BY created_at DESC');
-    // Map snake_case to camelCase for frontend compatibility
     const games = result.rows.map(row => ({
       id: row.id,
       title: row.title,
@@ -150,6 +152,20 @@ app.post('/api/games', async (req, res) => {
     const query = `
       INSERT INTO games (id, title, tagline, developer, year, genre, score, badge, hours_played, cover_image, banner_image, verdict, chebg_review, youtube_id)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      ON CONFLICT (id) DO UPDATE SET
+        title = EXCLUDED.title,
+        tagline = EXCLUDED.tagline,
+        developer = EXCLUDED.developer,
+        year = EXCLUDED.year,
+        genre = EXCLUDED.genre,
+        score = EXCLUDED.score,
+        badge = EXCLUDED.badge,
+        hours_played = EXCLUDED.hours_played,
+        cover_image = EXCLUDED.cover_image,
+        banner_image = EXCLUDED.banner_image,
+        verdict = EXCLUDED.verdict,
+        chebg_review = EXCLUDED.chebg_review,
+        youtube_id = EXCLUDED.youtube_id
       RETURNING *;
     `;
     const values = [
